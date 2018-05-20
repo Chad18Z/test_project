@@ -16,6 +16,6 @@ public class Container : MonoBehaviour {
     public void SetDistanceFromOrigin(float inputDistance)
     {
         float cubeHalfWidth = transform.GetChild(0).transform.localScale.x / 2f;
-        transform.GetChild(0).transform.localPosition = new Vector3(0f, 0f, inputDistance + cubeHalfWidth);
+        transform.GetChild(0).transform.localPosition = new Vector3(0f, 0f, inputDistance + cubeHalfWidth + 0.02f);
     }
 }

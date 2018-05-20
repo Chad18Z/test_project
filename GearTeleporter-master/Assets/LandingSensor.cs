@@ -8,18 +8,6 @@ public class LandingSensor : MonoBehaviour {
     [SerializeField] Transform cameraRigTransform;
     [SerializeField] PlayerManager playerManager;
 
-	// Use this for initialization
-	void Start ()
-    {
-		
-	}
-	
-	// Update is called once per frame
-	void Update ()
-    {
-		
-	}
-
     void OnTriggerEnter(Collider other)
     {
         float rayLength = cameraEyeTransform.position.y - cameraRigTransform.position.y;
