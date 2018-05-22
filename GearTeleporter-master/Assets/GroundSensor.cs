@@ -2,6 +2,9 @@
 using System.Collections.Generic;
 using UnityEngine;
 
+/// <summary>
+/// Senses when we fall off a cliff
+/// </summary>
 public class GroundSensor : MonoBehaviour {
 
     [SerializeField] Transform cameraEyeTransform;
@@ -10,13 +13,10 @@ public class GroundSensor : MonoBehaviour {
 	// Update is called once per frame
 	void Update ()
     {
+        // Follow the headset's lateral position (not vertical)
         transform.position = new Vector3(cameraEyeTransform.position.x, transform.position.y, cameraEyeTransform.position.z);
 	}
 
-    void OnTriggerEnter(Collider other)
-    {
-        //playerManager.onGround = true;
-    }
 
     void OnTriggerExit(Collider other)
     {

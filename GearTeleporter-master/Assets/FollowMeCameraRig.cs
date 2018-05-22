@@ -9,16 +9,17 @@ public class FollowMeCameraRig : MonoBehaviour {
     
     Transform cameraRigTransform;
     Transform cameraEyeTransform;
-    Rigidbody rigidbody;
+    Rigidbody rigidBody;
 
 	// Use this for initialization
 	void Awake ()
     {
         cameraRigTransform = GameObject.Find("[CameraRig]").transform;
         cameraEyeTransform = GameObject.Find("Camera (eye)").transform;
-        rigidbody = GetComponent<Rigidbody>();
+        rigidBody = GetComponent<Rigidbody>();
     }
 	
+    // TODO: probably make this LateUpdate (or maybe FixedUpdate?)
 	// Update is called once per frame
 	void Update ()
     {
@@ -28,7 +29,7 @@ public class FollowMeCameraRig : MonoBehaviour {
     void OnEnable()
     {
         transform.position = cameraEyeTransform.position;
-        rigidbody.velocity = Vector3.zero;
+        rigidBody.velocity = Vector3.zero;
         cameraRigTransform.position = transform.position + (cameraRigTransform.position - cameraEyeTransform.position);
     }
 }

@@ -8,6 +8,7 @@ public class Bezier : MonoBehaviour {
         get { return endpoint; }
     }
 
+    // controls how much farther you can travel, NOT how long the bezier will continue. (Keep between -1f and 1f)
     public float ExtensionFactor {
         set { extensionFactor = value; }
     }
@@ -17,8 +18,8 @@ public class Bezier : MonoBehaviour {
     private Vector3[] controlPoints;
     private LineRenderer lineRenderer;
     private float extendStep;
-    private int SEGMENT_COUNT = 20;
-    int segmentCountMultiplier = 5;
+    private int SEGMENT_COUNT = 20;                     // this times the segmentCountMultiplier is how many segments there will be
+    int segmentCountMultiplier = 5;                     // how much further the bezier will extend
 
     void Awake() {
         controlPoints = new Vector3[3];

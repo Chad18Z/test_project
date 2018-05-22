@@ -4,12 +4,13 @@ using UnityEngine;
 
 public class Container : MonoBehaviour {
 
-    float cubeHalfWidth;
-    float ballSwingerRadius;
-    public Transform targetTransform;
+    float cubeHalfWidth;                // half of the cube's width. Duh
+    float ballSwingerRadius;            // radius of the ball swinger. Obviously
+    public Transform targetTransform;   // the Transform of our target, the ball
 
     void Start()
     {
+        // Assign the correct values, then deactivate ourselves
         cubeHalfWidth = transform.GetChild(0).transform.localScale.x / 2f;
         ballSwingerRadius = targetTransform.GetComponent<SphereCollider>().radius * targetTransform.localScale.x;
 
@@ -19,15 +20,28 @@ public class Container : MonoBehaviour {
     // Update is called once per frame
     void Update ()
     {
+        // Always point to the ball
         Vector3 directionToLook = targetTransform.position - transform.position;
         transform.forward = directionToLook;
 	}
 
+
+
+
+    //////////////////////////////////////////////////////
+    /////////////////// CUSTOM METHODS ///////////////////
+    //////////////////////////////////////////////////////
+
+    /// <summary>
+    /// Sets the block the correct distance from the ball to contain it
+    /// </summary>
     public void SetDistanceFromOrigin()
     {
+        // Point self to ball
         Vector3 directionToLook = targetTransform.position - transform.position;
         transform.forward = directionToLook;
 
+        // Get the distance we should be, and set that as our distance in the Z-axis
         float distFromTarget = (transform.position - targetTransform.position).magnitude;
         transform.GetChild(0).transform.localPosition = new Vector3(0f, 0f, distFromTarget + ballSwingerRadius + cubeHalfWidth + 0.02f);
     }
