@@ -3,52 +3,61 @@ using System.Collections.Generic;
 using UnityEngine;
 
 public class Grapple : MonoBehaviour {
-
-    [HideInInspector] public bool laserActive;
-
+    
     [SerializeField] Transform shotReferenceTransform;
     [SerializeField] GameObject ballSwinger;
     [SerializeField] GameObject ballContainer;
     [SerializeField] Transform cameraRigTransform;
     [SerializeField] PlayerManager playerManager;
+    [SerializeField] Grapple otherGrapple;
     [SerializeField] Material normalMaterial;
     [SerializeField] Material swingableMaterial;
     [SerializeField] Material swingingMaterial;
+    
+    [HideInInspector] public bool isHooked;
+    [HideInInspector] public bool ballSwingerOwner;
+    [HideInInspector] public Vector3 previousBallPosition;
+    [HideInInspector] public bool cameraRigMoveDisabledThisFrame;
 
-    [HideInInspector] public GameObject newBall;
-    [HideInInspector] public GameObject newContainer;
+    public GameObject myContainer;
+
     SteamVR_TrackedObject trackedObj;
     LineRenderer lineRenderer;
     Vector3 previousControllerPosition;
-    Vector3 previousBallPosition;
     Vector3 previousCameraRigPosition;
-    Vector3 endPosition;
+    Vector3 laserEndPosition;
+    Vector3 ensuredVelocity;
     float maxLength = 100f;
+    int layerMask;
 
-	// Use this for initialization
-	void Start ()
+    // Use this for initialization
+    void Start ()
     {
         // Assign declared variables
         trackedObj = GetComponent<SteamVR_TrackedObject>();
         lineRenderer = GetComponent<LineRenderer>();
+        isHooked = false;
+        ballSwingerOwner = false;
+        cameraRigMoveDisabledThisFrame = false;
 
-        laserActive = true;
-	}
-	
-	// Update is called once per frame
-	void Update ()
+        layerMask = LayerMask.GetMask("BallSwinger", "BallContainer");
+        layerMask = ~layerMask;
+    }
+
+    // Update is called once per frame
+    void Update ()
     {
         var device = SteamVR_Controller.Input((int)trackedObj.index);
         Ray ray = new Ray(transform.position, shotReferenceTransform.up);
         RaycastHit raycastHit;
         
-        endPosition = transform.position + shotReferenceTransform.up * maxLength;
+        laserEndPosition = transform.position + shotReferenceTransform.up * maxLength;
 
         // If we're actually pointing at an object...
-        if (Physics.Raycast(ray, out raycastHit, maxLength))
+        if (Physics.Raycast(ray, out raycastHit, maxLength, layerMask))
         {
             // Set our laser to stop there
-            endPosition = raycastHit.point;
+            laserEndPosition = raycastHit.point;
 
             // If the object we're pointing at is swingable...
             if (raycastHit.collider.gameObject.tag == "Swingable")
@@ -62,7 +71,9 @@ public class Grapple : MonoBehaviour {
                     // If we're airborne...
                     if (!playerManager.onGround)
                     {
+                        print("I fired at " + Time.time);
                         ShootGrapple(raycastHit.point);
+                        isHooked = true;
 
                         playerManager.SwitchToHookedFromMidair();
                     }
@@ -79,56 +90,121 @@ public class Grapple : MonoBehaviour {
             lineRenderer.material = normalMaterial;
         }
 
-        // If the player is hooked and the trigger is RELEASED...
-        if (playerManager.hooked && device.GetPressUp(SteamVR_Controller.ButtonMask.Trigger))
+        // If this grapple is hooked and the trigger is RELEASED...
+        if (isHooked && device.GetPressUp(SteamVR_Controller.ButtonMask.Trigger))
         {
-            Vector3 currentVelocity = Vector3.zero;
-            if (newBall) currentVelocity = newBall.GetComponent<Rigidbody>().velocity;
-            Destroy(newBall);
-            Destroy(newContainer);
-            playerManager.SwitchToMidairFromHooked(currentVelocity);
+            // If the other grapple isn't hooked...
+            if (!otherGrapple.isHooked)
+            {
+                Vector3 currentVelocity = ballSwinger.GetComponent<Rigidbody>().velocity;
+                DeactivateBall();
+                myContainer.SetActive(false);
+                playerManager.SwitchToMidairFromHooked(currentVelocity);
+            }
+            // Otherwise, the other grapple IS hooked, so...
+            else
+            {
+                // If this is the ball swinger owner...
+                if (ballSwingerOwner)
+                {
+                    // Declare the other grapple as the righteous owner of the sacred ball :O
+                    ballSwingerOwner = false;
+                    otherGrapple.ballSwingerOwner = true;
+
+                    // Deactivate our container, and reset the other guy's
+                    myContainer.SetActive(false);
+                    Vector3 otherContainerOrigin = otherGrapple.myContainer.transform.position;
+                    ballSwinger.transform.position = otherGrapple.transform.position;
+                    otherGrapple.myContainer.transform.position = otherContainerOrigin;
+                    otherGrapple.myContainer.GetComponent<Container>().SetDistanceFromOrigin();
+                    Vector3 ballCurrentVelocity = ballSwinger.GetComponent<Rigidbody>().velocity;
+                    otherGrapple.previousBallPosition = ballSwinger.transform.position + -(ballCurrentVelocity * Time.deltaTime);
+                }
+                // Otherwise, this wasn't the ball swinger owner, so...
+                else
+                {
+                    myContainer.SetActive(false);
+                    otherGrapple.ballSwingerOwner = true;
+                    ballSwingerOwner = false;
+                }
+            }
+
+            isHooked = false;
+            ballSwingerOwner = false;
         }
 
-        if (playerManager.hooked)
+        // If this grapple is hooked...
+        if (isHooked)
         {
-            lineRenderer.material = swingingMaterial;
+            // If we're the righteous ball owner and we're not on that frame where we shouldn't move...
+            if (ballSwingerOwner && !cameraRigMoveDisabledThisFrame)
+            {
+                cameraRigTransform.position += (previousControllerPosition - trackedObj.transform.position);
+                cameraRigTransform.position += (ballSwinger.transform.position - previousBallPosition);
+            }
 
-            cameraRigTransform.position += (previousControllerPosition - trackedObj.transform.position);
-            cameraRigTransform.position += (newBall.transform.position - previousBallPosition);
-            endPosition = newContainer.transform.position;
+            // Set line renderer's material and end position
+            lineRenderer.material = swingingMaterial;
+            laserEndPosition = myContainer.transform.position;
         }
 
         previousCameraRigPosition = cameraRigTransform.position;
         previousControllerPosition = transform.position;
-        if (newBall != null) previousBallPosition = newBall.transform.position;
-        
+        if (ballSwinger.activeSelf) previousBallPosition = ballSwinger.transform.position;
+
+        cameraRigMoveDisabledThisFrame = false;
     }
 
     void LateUpdate()
     {
         lineRenderer.SetPosition(0, transform.position);
-        lineRenderer.SetPosition(1, endPosition);
+        lineRenderer.SetPosition(1, laserEndPosition);
     }
 
 
-
+    // TODO: fix my current velocity. What if we weren't just midair?
     /// <summary>
     /// Shoots the grapple, with the container centered at the input Vector3
     /// </summary>
     /// <param name="inputHitLocation"></param>
     private void ShootGrapple(Vector3 inputHitLocation)
     {
-        newBall = Instantiate(ballSwinger, transform.position, Quaternion.identity);
-        print("Ball: " + newBall.transform.position + " Controller: " + transform.position);
-        Vector3 myCurrentVelocity = (cameraRigTransform.position - previousCameraRigPosition) / Time.deltaTime;
-        newBall.GetComponent<Rigidbody>().velocity = myCurrentVelocity;
-        previousBallPosition = newBall.transform.position + -(myCurrentVelocity * Time.deltaTime);
+        // Become the righteous ballSwinger owner
+        ballSwingerOwner = true;
+        otherGrapple.ballSwingerOwner = false;
 
-        newContainer = Instantiate(ballContainer, inputHitLocation, Quaternion.identity);
-        Container newContainerScript = newContainer.GetComponent<Container>();
-        newContainerScript.targetTransform = newBall.transform;
-        float newBallRadius = newBall.GetComponent<SphereCollider>().radius * newBall.transform.localScale.x;
-        float distFromContainer = (newContainer.transform.position - newBall.transform.position).magnitude;
-        newContainerScript.SetDistanceFromOrigin(distFromContainer + newBallRadius);
+        ballSwinger.SetActive(true);
+        Vector3 ballPositionBeforeTeleport = ballSwinger.transform.position;
+        ballSwinger.transform.position = transform.position;
+        Vector3 amountBallMoved = ballSwinger.transform.position - ballPositionBeforeTeleport;
+        previousBallPosition += amountBallMoved;
+
+        otherGrapple.cameraRigMoveDisabledThisFrame = true;
+
+        // If the other grapple isn't hooked...
+        if (!otherGrapple.isHooked)
+        {
+            ballSwinger.GetComponent<Rigidbody>().velocity = playerManager.currentVelocity;
+            previousBallPosition = ballSwinger.transform.position + -(playerManager.currentVelocity * Time.deltaTime);
+        }
+
+        myContainer.SetActive(true);
+        myContainer.transform.position = inputHitLocation;
+        Container myContainerScript = myContainer.GetComponent<Container>();
+        myContainerScript.SetDistanceFromOrigin();
+        
+        // If the other grapple is already hooked...
+        if (otherGrapple.isHooked)
+        {
+            // ...set its container's new distance
+            otherGrapple.myContainer.GetComponent<Container>().SetDistanceFromOrigin();
+        }
+    }
+
+
+
+    public void DeactivateBall()
+    {
+        ballSwinger.SetActive(false);
     }
 }

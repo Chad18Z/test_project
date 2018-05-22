@@ -4,18 +4,31 @@ using UnityEngine;
 
 public class Container : MonoBehaviour {
 
+    float cubeHalfWidth;
+    float ballSwingerRadius;
     public Transform targetTransform;
-	
-	// Update is called once per frame
-	void Update ()
+
+    void Start()
+    {
+        cubeHalfWidth = transform.GetChild(0).transform.localScale.x / 2f;
+        ballSwingerRadius = targetTransform.GetComponent<SphereCollider>().radius * targetTransform.localScale.x;
+
+        gameObject.SetActive(false);
+    }
+
+    // Update is called once per frame
+    void Update ()
     {
         Vector3 directionToLook = targetTransform.position - transform.position;
         transform.forward = directionToLook;
 	}
 
-    public void SetDistanceFromOrigin(float inputDistance)
+    public void SetDistanceFromOrigin()
     {
-        float cubeHalfWidth = transform.GetChild(0).transform.localScale.x / 2f;
-        transform.GetChild(0).transform.localPosition = new Vector3(0f, 0f, inputDistance + cubeHalfWidth + 0.02f);
+        Vector3 directionToLook = targetTransform.position - transform.position;
+        transform.forward = directionToLook;
+
+        float distFromTarget = (transform.position - targetTransform.position).magnitude;
+        transform.GetChild(0).transform.localPosition = new Vector3(0f, 0f, distFromTarget + ballSwingerRadius + cubeHalfWidth + 0.02f);
     }
 }

@@ -98,7 +98,6 @@ public class Bezier : MonoBehaviour {
         RaycastHit hit;
         if (Physics.Raycast(r, out hit, Vector3.Distance(start, end))) {
             endpoint = hit.point;
-            print("I hit " + hit.collider.gameObject.name);
             return true;
         }
 

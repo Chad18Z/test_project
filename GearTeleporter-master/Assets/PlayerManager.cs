@@ -2,59 +2,79 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-public class PlayerManager : MonoBehaviour {
-
-    [HideInInspector] public bool onGround;
-    [HideInInspector] public bool hooked;
-
-    // [SerializeField] Grapple leftHandGrapple;
+public class PlayerManager : MonoBehaviour
+{
+    [SerializeField] Grapple leftHandGrapple;
     [SerializeField] Grapple rightHandGrapple;
     [SerializeField] GameObject landingSensor;
 
+    [HideInInspector] public bool onGround;
+    [HideInInspector] public Vector3 currentVelocity;
+
     Transform cameraEyeTransform;
-    Rigidbody rigidbody;
+    Rigidbody rigidBody;
+    Vector3 previousPosition;
     float verticalJumpForce = 6f;
     float lateralJumpForce = 2f;
 
     // Use this for initialization
     void Start ()
     {
+        previousPosition = transform.position;
         onGround = true;
-        rigidbody = GetComponent<Rigidbody>();
+
+        rigidBody = GetComponent<Rigidbody>();
         cameraEyeTransform = GameObject.Find("Camera (eye)").transform;
-	}
+
+        // DELETE AFTER TESTING
+        SwitchToFellOffCliff();
+    }
+
+    void FixedUpdate()
+    {
+        currentVelocity = (transform.position - previousPosition) / Time.deltaTime;
+
+        previousPosition = transform.position;
+    }
+
+
+
+
 
     public void SwitchToHookedFromMidair()
     {
-        rigidbody.isKinematic = true;
-        rigidbody.useGravity = false;
+        rigidBody.isKinematic = true;
+        rigidBody.useGravity = false;
 
         landingSensor.SetActive(true);
         onGround = false;
-        hooked = true;
     }
 
     public void SwitchToLanded()
     {
         // TODO: Add left hand grapple
-        if (hooked)
+        if (rightHandGrapple.isHooked)
         {
-            Destroy(rightHandGrapple.newBall);
-            Destroy(rightHandGrapple.newContainer);
+            rightHandGrapple.DeactivateBall();
+            rightHandGrapple.myContainer.SetActive(false);
+        }
+        if (leftHandGrapple.isHooked)
+        {
+            leftHandGrapple.DeactivateBall();
+            leftHandGrapple.myContainer.SetActive(false);
         }
 
-        rigidbody.isKinematic = true;
-        rigidbody.useGravity = false;
+        rigidBody.isKinematic = true;
+        rigidBody.useGravity = false;
 
         landingSensor.SetActive(false);
         onGround = true;
-        hooked = false;
     }
 
     public void SwitchToFellOffCliff()
     {
-        rigidbody.isKinematic = false;
-        rigidbody.useGravity = true;
+        rigidBody.isKinematic = false;
+        rigidBody.useGravity = true;
 
         landingSensor.SetActive(true);
         onGround = false;
@@ -62,25 +82,24 @@ public class PlayerManager : MonoBehaviour {
 
     public void SwitchToMidairFromHooked(Vector3 inputVelocity)
     {
-        rigidbody.isKinematic = false;
-        rigidbody.useGravity = true;
-        rigidbody.velocity = inputVelocity;
+        rigidBody.isKinematic = false;
+        rigidBody.useGravity = true;
+        rigidBody.velocity = inputVelocity;
 
         landingSensor.SetActive(true);
         onGround = false;
-        hooked = false;
     }
     
     public void Jump()
     {
-        rigidbody.isKinematic = false;
-        rigidbody.useGravity = true;
+        rigidBody.isKinematic = false;
+        rigidBody.useGravity = true;
         Invoke("SetLandingSensorActive", .1f);
         onGround = false;
         
         Vector2 flattenedTargetVector = (new Vector2(cameraEyeTransform.forward.x, cameraEyeTransform.forward.z)).normalized * lateralJumpForce;
         Vector3 jumpVector = new Vector3(flattenedTargetVector.x, verticalJumpForce, flattenedTargetVector.y);
-        rigidbody.AddForce(jumpVector, ForceMode.Impulse);
+        rigidBody.AddForce(jumpVector, ForceMode.Impulse);
     }
 
 

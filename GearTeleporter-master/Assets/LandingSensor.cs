@@ -19,7 +19,6 @@ public class LandingSensor : MonoBehaviour {
 
         if (Physics.Raycast(ray, out raycastHit, rayLength, bitMask))
         {
-            print("my ray hit " + raycastHit.collider.gameObject.name);
             cameraRigTransform.position = new Vector3(cameraRigTransform.position.x, raycastHit.point.y, cameraRigTransform.position.z);
         }
 
