@@ -1,5 +1,9 @@
 ﻿using UnityEngine;
 using System.Collections.Generic;
+
+/// <summary>
+/// Probably don't mess with this class too much. It's a lot of math and I only somewhat understand it
+/// </summary>
 [RequireComponent(typeof(LineRenderer))]
 public class Bezier : MonoBehaviour {
     public bool endPointDetected;
@@ -20,6 +24,7 @@ public class Bezier : MonoBehaviour {
     private float extendStep;
     private int SEGMENT_COUNT = 20;                     // this times the segmentCountMultiplier is how many segments there will be
     int segmentCountMultiplier = 5;                     // how much further the bezier will extend
+    bool currentlyActive = false;
 
     void Awake() {
         controlPoints = new Vector3[3];
@@ -29,14 +34,19 @@ public class Bezier : MonoBehaviour {
         extensionFactor = 0f;
     }
 
-    void Update() {
+    void Update()
+    {
         UpdateControlPoints();
         HandleExtension();
-        DrawCurve();
+        if (currentlyActive)
+        {
+            DrawCurve();
+        }
     }
 
     public void ToggleDraw(bool draw) {
         lineRenderer.enabled = draw;
+        currentlyActive = draw;
     }
 
     void HandleExtension() {

@@ -26,6 +26,7 @@ public class Grapple : MonoBehaviour {
     Vector3 laserEndPosition;                   // where our laser stops
     float maxLength = 100f;                     // the max length our laser can travel
     int layerMask;                              // the layermask of what our ray can hit
+    bool laserEnabled = true;
 
     // Use this for initialization
     void Start ()
@@ -63,47 +64,50 @@ public class Grapple : MonoBehaviour {
             Time.timeScale = 0f;
         }
 
-        // If we're actually pointing at an object...
-        if (Physics.Raycast(ray, out raycastHit, maxLength, layerMask))
+        // If we're allowed to shoot our laser...
+        if (laserEnabled)
         {
-            // Set our laser to stop there
-            laserEndPosition = raycastHit.point;
-
-            // If the object we're pointing at is swingable...
-            if (raycastHit.collider.gameObject.tag == "Swingable")
+            // If we're actually pointing at an object...
+            if (Physics.Raycast(ray, out raycastHit, maxLength, layerMask))
             {
-                // Change the laser color
-                lineRenderer.material = swingableMaterial;
+                // Set our laser to stop there
+                laserEndPosition = raycastHit.point;
 
-                // If we press the trigger...
-                if (device.GetPressDown(SteamVR_Controller.ButtonMask.Trigger))
+                // If the object we're pointing at is swingable...
+                if (raycastHit.collider.gameObject.tag == "Swingable")
                 {
-                    // If we're airborne...
-                    if (!playerManager.onGround)
-                    {
-                        // ...shoot the grapple at it, flag ourselves hooked, and notify the PlayerManager
-                        ShootGrapple(raycastHit.point);
-                        isHooked = true;
+                    // Change the laser color
+                    lineRenderer.material = swingableMaterial;
 
-                        playerManager.SwitchToHookedFromMidair();
-                    }
-                    // If we're on the ground...
-                    else
+                    // If we press the trigger...
+                    if (device.GetPressDown(SteamVR_Controller.ButtonMask.Trigger))
                     {
-                        // ...jump!
-                        playerManager.Jump();
+                        // If we're airborne...
+                        if (!playerManager.onGround)
+                        {
+                            // ...shoot the grapple at it, flag ourselves hooked, and notify the PlayerManager
+                            ShootGrapple(raycastHit.point);
+                            isHooked = true;
+
+                            playerManager.SwitchToHookedFromMidair();
+                        }
+                        // If we're on the ground...
+                        else
+                        {
+                            // ...jump!
+                            playerManager.Jump();
+                        }
                     }
                 }
             }
+            // Otherwise, our ray didn't hit anything, so...
+            else
+            {
+                // ...change the line renderer material accordingly
+                lineRenderer.material = normalMaterial;
+            }
         }
-        // Otherwise, our ray didn't hit anything, so...
-        else
-        {
-            // ...change the line renderer material accordingly
-            lineRenderer.material = normalMaterial;
-        }
-
-        // TODO: Disconnect from the ball if the other isn't hooked
+        
         // If this grapple is hooked and the trigger is RELEASED...
         if (isHooked && device.GetPressUp(SteamVR_Controller.ButtonMask.Trigger))
         {
@@ -121,7 +125,7 @@ public class Grapple : MonoBehaviour {
         }
 
         // If this grapple is hooked...
-        if (isHooked)
+        if (isHooked && laserEnabled)
         {
             // Set line renderer's material and end position
             lineRenderer.material = swingingMaterial;
@@ -131,9 +135,12 @@ public class Grapple : MonoBehaviour {
 
     void LateUpdate()
     {
-        // Set our line renderer to the right position
-        lineRenderer.SetPosition(0, transform.position);
-        lineRenderer.SetPosition(1, laserEndPosition);
+        if (laserEnabled)
+        {
+            // Set our line renderer to the right position
+            lineRenderer.SetPosition(0, transform.position);
+            lineRenderer.SetPosition(1, laserEndPosition);
+        }
     }
 
 
@@ -141,9 +148,7 @@ public class Grapple : MonoBehaviour {
     //////////////////////////////////////////////////////
     /////////////////// CUSTOM METHODS ///////////////////
     //////////////////////////////////////////////////////
-
-
-    // TODO: What if the other hand is already hooked?
+    
     /// <summary>
     /// Shoots the grapple, with the container centered at the input Vector3
     /// </summary>
@@ -159,7 +164,11 @@ public class Grapple : MonoBehaviour {
         followMeCameraRigScript.SetPosition();
 
         // If we're the first to get hooked, joint connect Follow Me to the ball
-        if (!otherGrapple.isHooked) followMeCameraRigScript.ConnectToBall();
+        if (!otherGrapple.isHooked)
+        {
+            followMeCameraRigScript.ConnectToBall();
+            followMeRigidbody.velocity = ballSwingerRigidbody.velocity;
+        }
 
         // Activate our container, and set it to the appropriate place
         myContainer.SetActive(true);

@@ -14,12 +14,14 @@ public class MyTeleport : MonoBehaviour {
     [SerializeField] Transform playerEyeTransform;      // the head's transform
     
     SteamVR_TrackedObject trackedObj;                   // steam's special little tracked object script
+    bool teleportAllowed;
 
-	// Use this for initialization
-	void Start ()
+    // Use this for initialization
+    void Start ()
     {
         // Assign declared variables
         trackedObj = GetComponent<SteamVR_TrackedObject>();
+        teleportAllowed = true;
 
         // Set our travel distance shorter and turn off the teleporter sprite
         bezier.ExtensionFactor = -.5f;
@@ -32,23 +34,26 @@ public class MyTeleport : MonoBehaviour {
         // Get this device
         var device = SteamVR_Controller.Input((int)trackedObj.index);
 
-        // If we press down on the touchpad, turn the bezier curve on
-        if (device.GetPressDown(SteamVR_Controller.ButtonMask.Touchpad))
+        if (teleportAllowed)
         {
-            bezier.ToggleDraw(true);
-        }
-        // If we're mid-holding down the touchpad, keep it on
-        else if (device.GetPress(SteamVR_Controller.ButtonMask.Touchpad))
-        {
-            HandleArcMaking();
-        }
-        // If we let go of the touchpad button...
-        else if (device.GetPressUp(SteamVR_Controller.ButtonMask.Touchpad))
-        {
-            // If it actually hit an endpoint, teleport there and turn off the bezier
-            if (bezier.endPointDetected) TeleportToPosition(bezier.EndPoint + TeleportOffset());
-            teleportEndSprite.SetActive(false);
-            bezier.ToggleDraw(false);
+            // If we press down on the touchpad, turn the bezier curve on
+            if (device.GetPressDown(SteamVR_Controller.ButtonMask.Touchpad))
+            {
+                bezier.ToggleDraw(true);
+            }
+            // If we're mid-holding down the touchpad, keep it on
+            else if (device.GetPress(SteamVR_Controller.ButtonMask.Touchpad))
+            {
+                HandleArcMaking();
+            }
+            // If we let go of the touchpad button...
+            else if (device.GetPressUp(SteamVR_Controller.ButtonMask.Touchpad))
+            {
+                // If it actually hit an endpoint, teleport there and turn off the bezier
+                if (bezier.endPointDetected) TeleportToPosition(bezier.EndPoint + TeleportOffset());
+                teleportEndSprite.SetActive(false);
+                bezier.ToggleDraw(false);
+            }
         }
     }
 
@@ -94,5 +99,16 @@ public class MyTeleport : MonoBehaviour {
         Vector3 flatDistanceFromCamToPlayer = new Vector3(cameraRigTransform.position.x - playerEyeTransform.position.x, 0f, cameraRigTransform.position.z - playerEyeTransform.position.z);
 
         return flatDistanceFromCamToPlayer;
+    }
+
+    public void DisableTeleport()
+    {
+        teleportAllowed = false;
+        bezier.ToggleDraw(false);
+    }
+
+    public void EnableTeleport()
+    {
+        teleportAllowed = true;
     }
 }

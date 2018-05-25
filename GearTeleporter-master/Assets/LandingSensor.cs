@@ -23,7 +23,7 @@ public class LandingSensor : MonoBehaviour {
         Ray ray = new Ray(cameraEyeTransform.position, Vector3.down);
         RaycastHit raycastHit;
 
-        // Make our bitmask ignore the the ball swinger and container layers
+        // Add all the stuff we want to ignore to our bitmask, then reverse it
         int bitMask = 1 << 8 | 1 << 9 | 1 << 10 | 1 << 11;
         bitMask = ~bitMask;
 
