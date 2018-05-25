@@ -24,7 +24,7 @@ public class LandingSensor : MonoBehaviour {
         RaycastHit raycastHit;
 
         // Make our bitmask ignore the the ball swinger and container layers
-        int bitMask = 1 << 8 | 1 << 9;
+        int bitMask = 1 << 8 | 1 << 9 | 1 << 10 | 1 << 11;
         bitMask = ~bitMask;
 
         // If we hit something, set the Camera Rig's height to be that hit point
