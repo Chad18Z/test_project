@@ -10,9 +10,11 @@ public class Grapple : MonoBehaviour {
     [SerializeField] Material normalMaterial;                           // the laser's material when we're not attached to anything
     [SerializeField] Material swingableMaterial;                        // the laser's material when we're pointing at something swingable
     [SerializeField] Material swingingMaterial;                         // the laser's material when we're swinging
+    [SerializeField] Material hookInvokedMaterial;                      // the laser's material when hooking is invoked
     [SerializeField] GameObject followMeCameraRig;
 
     [HideInInspector] public bool isHooked;                             // is this grapple currently hooked?
+    [HideInInspector] public bool hookInvoked;
 
     public GameObject myContainer;              // this hand's cube that blocks us
 
@@ -24,7 +26,9 @@ public class Grapple : MonoBehaviour {
     LineRenderer lineRenderer;                  // this hand's line renderer
     Rigidbody ballSwingerRigidbody;             // the balls rigidbody
     Vector3 laserEndPosition;                   // where our laser stops
+    Vector3 invokedSpotToHook;
     float maxLength = 100f;                     // the max length our laser can travel
+    float previousYCoord;
     int layerMask;                              // the layermask of what our ray can hit
     bool laserEnabled = true;
 
@@ -36,6 +40,7 @@ public class Grapple : MonoBehaviour {
         lineRenderer = GetComponent<LineRenderer>();
         ballSwingerRigidbody = ballSwinger.GetComponent<Rigidbody>();
         isHooked = false;
+        hookInvoked = false;
         playerManager = GameObject.Find("[CameraRig]").GetComponent<PlayerManager>();
         cameraEyeTransform = GameObject.Find("Camera (eye)").transform;
         followMeCameraRigScript = followMeCameraRig.GetComponent<FollowMeCameraRig>();
@@ -82,20 +87,34 @@ public class Grapple : MonoBehaviour {
                     // If we press the trigger...
                     if (device.GetPressDown(SteamVR_Controller.ButtonMask.Trigger))
                     {
-                        // If we're airborne...
+                        // If the player manager says we're not grounded...
                         if (!playerManager.onGround)
                         {
-                            // ...shoot the grapple at it, flag ourselves hooked, and notify the PlayerManager
-                            ShootGrapple(raycastHit.point);
-                            isHooked = true;
+                            // ...if the other grapple has hook invoked...
+                            if (otherGrapple.hookInvoked)
+                            {
+                                // ...hook invoke ourselves
+                                hookInvoked = true;
+                                invokedSpotToHook = raycastHit.point;
+                                previousYCoord = playerManager.transform.position.y;
+                            }
+                            // Otherwise, the other grapple isn't invoked, so...
+                            else
+                            {
+                                // ...shoot the grapple and notify the PlayerManager
+                                ShootGrapple(raycastHit.point);
 
-                            playerManager.SwitchToHookedFromMidair();
+                                playerManager.SwitchToHookedFromMidair();
+                            }
                         }
-                        // If we're on the ground...
+                        // Otherwise, we're on the ground, so...
                         else
                         {
-                            // ...jump!
+                            // ...jump, and invoke hooking
                             playerManager.Jump();
+                            hookInvoked = true;
+                            invokedSpotToHook = raycastHit.point;
+                            previousYCoord = playerManager.transform.position.y;
                         }
                     }
                 }
@@ -108,20 +127,54 @@ public class Grapple : MonoBehaviour {
             }
         }
         
-        // If this grapple is hooked and the trigger is RELEASED...
-        if (isHooked && device.GetPressUp(SteamVR_Controller.ButtonMask.Trigger))
+        // If the trigger is RELEASED...
+        if (device.GetPressUp(SteamVR_Controller.ButtonMask.Trigger))
         {
-            // If the other grapple isn't hooked, then we're in freefall, so...
-            if (!otherGrapple.isHooked)
+            // ...if we're hooked...
+            if (isHooked)
             {
-                // Deactivate the ball and container
-                followMeCameraRigScript.DisconnectFromBall();
-                DeactivateBall();
+                // If the other grapple isn't hooked, then we're in freefall, so...
+                if (!otherGrapple.isHooked)
+                {
+                    // Deactivate the ball and container
+                    followMeCameraRigScript.DisconnectFromBall();
+                    DeactivateBall();
+                }
+
+                // Deactivate our container and flag ourselves as not hooked
+                myContainer.SetActive(false);
+                isHooked = false;
             }
 
-            // Deactivate our container and flag ourselves as not hooked
-            myContainer.SetActive(false);
-            isHooked = false;
+            // ...if hooking is invoked...
+            if (hookInvoked)
+            {
+                // ...uninvoke it
+                hookInvoked = false;
+                lineRenderer.material = hookInvokedMaterial;
+            }
+        }
+
+        // If hooking is invoked...
+        if (hookInvoked)
+        {
+            // Change the laser material
+            lineRenderer.material = hookInvokedMaterial;
+            laserEndPosition = invokedSpotToHook;
+            
+            // ...if we're falling...
+            if (playerManager.transform.position.y < previousYCoord)
+            {
+                // ...shoot the grapple in the invoked spot and disable hookInvoked
+                ShootGrapple(invokedSpotToHook);
+                hookInvoked = false;
+            }
+            // Otherwise, we're not yet falling, so...
+            else
+            {
+                // ...set our previous Y coordinate for next frame
+                previousYCoord = playerManager.transform.position.y;
+            }
         }
 
         // If this grapple is hooked...
@@ -155,6 +208,9 @@ public class Grapple : MonoBehaviour {
     /// <param name="inputHitLocation"></param>
     private void ShootGrapple(Vector3 inputHitLocation)
     {
+        // Flag ourselves hooked
+        isHooked = true;
+
         // Activate the ball and put it in position at our head
         ballSwinger.SetActive(true);
         ballSwinger.transform.position = cameraEyeTransform.position;

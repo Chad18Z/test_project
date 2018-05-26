@@ -44,7 +44,7 @@ public class FollowMeCameraRig : MonoBehaviour
         cameraRigTransform.position = transform.position + (cameraRigTransform.position - cameraEyeTransform.position);
 
         // Update the capsule collider height, and keep that happening ever couple seconds, just to make sure it stays right
-        InvokeRepeating("SetCollider", 0.000001f, 2f);
+        InvokeRepeating("SetCollider", 0.000001f, 0.5f);
 
         // Whenever this puppy is on, we're not in a position where we should be allowed to teleport
         leftMyTeleportScript.DisableTeleport();
