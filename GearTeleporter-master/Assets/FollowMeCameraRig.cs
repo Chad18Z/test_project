@@ -30,18 +30,18 @@ public class FollowMeCameraRig : MonoBehaviour
         gameObject.SetActive(false);
     }
 
-    // Update is called once per frame
-    void Update()
-    {
-        // Make the camera rig be where we are, PLUS the offset of where the headset is vs the origin of Camera Rig
-        cameraRigTransform.position = transform.position + (cameraRigTransform.position - cameraEyeTransform.position);
-    }
+    //// Update is called once per frame
+    //void Update()
+    //{
+    //    // Make the camera rig be where we are, PLUS the offset of where the headset is vs the origin of Camera Rig
+    //    cameraRigTransform.position = transform.position + (cameraRigTransform.position - cameraEyeTransform.position);
+    //}
 
     void OnEnable()
     {
         // Teleport to the headset position, then offset the camera rig like in update
         transform.position = cameraEyeTransform.position;
-        cameraRigTransform.position = transform.position + (cameraRigTransform.position - cameraEyeTransform.position);
+        cameraRigTransform.parent = transform;
 
         // Update the capsule collider height, and keep that happening ever couple seconds, just to make sure it stays right
         InvokeRepeating("SetCollider", 0.000001f, 0.5f);
@@ -53,13 +53,18 @@ public class FollowMeCameraRig : MonoBehaviour
 
     void OnDisable()
     {
+        rigidBody.velocity = Vector3.zero;
+
         // Stop repeating setting the collider for next time it's activated
         CancelInvoke();
-
+        
         // When turned off, we should be allowed to teleport
         leftMyTeleportScript.EnableTeleport();
         rightMyTeleportScript.EnableTeleport();
     }
+
+
+
 
 
     //////////////////////////////////////////////////////
@@ -88,7 +93,9 @@ public class FollowMeCameraRig : MonoBehaviour
     /// </summary>
     public void SetPosition()
     {
+        cameraRigTransform.parent = null;
         transform.position = ballSwinger.transform.position;
+        cameraRigTransform.parent = transform;
     }
 
     /// <summary>

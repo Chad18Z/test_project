@@ -14,6 +14,7 @@ public class MyTeleport : MonoBehaviour {
     [SerializeField] Transform playerEyeTransform;      // the head's transform
     
     SteamVR_TrackedObject trackedObj;                   // steam's special little tracked object script
+    int framesToTeleport = 5;
     bool teleportAllowed;
 
     // Use this for initialization
@@ -44,13 +45,13 @@ public class MyTeleport : MonoBehaviour {
             // If we're mid-holding down the touchpad, keep it on
             else if (device.GetPress(SteamVR_Controller.ButtonMask.Touchpad))
             {
-                HandleArcMaking();
+                HandleEndPoint();
             }
             // If we let go of the touchpad button...
             else if (device.GetPressUp(SteamVR_Controller.ButtonMask.Touchpad))
             {
                 // If it actually hit an endpoint, teleport there and turn off the bezier
-                if (bezier.endPointDetected) TeleportToPosition(bezier.EndPoint + TeleportOffset());
+                if (bezier.endPointDetected) StartCoroutine(TeleportCameraRigToPosition(bezier.EndPoint + TeleportOffset()));
                 teleportEndSprite.SetActive(false);
                 bezier.ToggleDraw(false);
             }
@@ -66,7 +67,7 @@ public class MyTeleport : MonoBehaviour {
     /// <summary>
     /// Makes the arc
     /// </summary>
-    private void HandleArcMaking()
+    private void HandleEndPoint()
     {
         // If the bezier hit something, activate the teleportEndSprite
         if (bezier.endPointDetected)
@@ -85,7 +86,7 @@ public class MyTeleport : MonoBehaviour {
     /// Teleports you to the input position
     /// </summary>
     /// <param name="inputPosition"></param>
-    void TeleportToPosition(Vector3 inputPosition)
+    void TeleportToPos(Vector3 inputPosition)
     {
         cameraRigTransform.position = inputPosition;
     }
@@ -110,5 +111,20 @@ public class MyTeleport : MonoBehaviour {
     public void EnableTeleport()
     {
         teleportAllowed = true;
+    }
+
+    IEnumerator TeleportCameraRigToPosition(Vector3 inputPosition)
+    {
+        var waitForFixedUpdate = new WaitForFixedUpdate();
+
+        Vector3 positionDifference = inputPosition - cameraRigTransform.position;
+        Vector3 movementPerFrame = positionDifference / (float)framesToTeleport;
+
+        for (int i = 0; i < framesToTeleport; i++)
+        {
+            cameraRigTransform.position += movementPerFrame;
+
+            yield return waitForFixedUpdate;
+        }
     }
 }

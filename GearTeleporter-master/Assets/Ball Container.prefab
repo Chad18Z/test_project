@@ -136,4 +136,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 076a7b4b3de30b64790d8775eeb13374, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  latchedObjectTransform: {fileID: 0}
+  latchedObjPreviousPosition: {x: 0, y: 0, z: 0}
   targetTransform: {fileID: 0}

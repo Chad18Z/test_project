@@ -11,24 +11,27 @@ public class Grapple : MonoBehaviour {
     [SerializeField] Material swingableMaterial;                        // the laser's material when we're pointing at something swingable
     [SerializeField] Material swingingMaterial;                         // the laser's material when we're swinging
     [SerializeField] Material hookInvokedMaterial;                      // the laser's material when hooking is invoked
-    [SerializeField] GameObject followMeCameraRig;
+    [SerializeField] GameObject followMeCameraRig;                      // the Follow Me Camera Rig object
 
-    [HideInInspector] public bool isHooked;                             // is this grapple currently hooked?
-    [HideInInspector] public bool hookInvoked;
+    [HideInInspector] public bool isHooked;                             // is THIS grapple currently hooked?
+    [HideInInspector] public bool hookInvoked;                          // while jumping to get ready to grapple, this is true
 
     public GameObject myContainer;              // this hand's cube that blocks us
 
-    FollowMeCameraRig followMeCameraRigScript;
-    Rigidbody followMeRigidbody;
+    Container myContainerScript;                // the script attached to my container
+    GameObject invokedHitObject;                // the object that we've been invoked to put our container on
+    FollowMeCameraRig followMeCameraRigScript;  // the script attached to Follow Me Camera Rig
+    Rigidbody followMeRigidbody;                // the rigidbody on Follow Me Camera Rig
     PlayerManager playerManager;                // the PlayerManager attached to CameraRig
-    Transform cameraEyeTransform;
+    Transform cameraEyeTransform;               // the transform of the headset
     SteamVR_TrackedObject trackedObj;           // this hand
     LineRenderer lineRenderer;                  // this hand's line renderer
     Rigidbody ballSwingerRigidbody;             // the balls rigidbody
     Vector3 laserEndPosition;                   // where our laser stops
-    Vector3 invokedSpotToHook;
+    Vector3 initialInvokedSpotToHook;           // when we first invoked hooking, this is the exact position the ray hit
+    Vector3 initialInvokedObjectPosition;       // when we first invoked hooking, this is the position that the object we hit was
     float maxLength = 100f;                     // the max length our laser can travel
-    float previousYCoord;
+    float previousYCoord;                       // where we were in the Y-axis last frame. This is used to find when we're at the peak of our jump
     int layerMask;                              // the layermask of what our ray can hit
     bool laserEnabled = true;
 
@@ -45,6 +48,7 @@ public class Grapple : MonoBehaviour {
         cameraEyeTransform = GameObject.Find("Camera (eye)").transform;
         followMeCameraRigScript = followMeCameraRig.GetComponent<FollowMeCameraRig>();
         followMeRigidbody = followMeCameraRig.GetComponent<Rigidbody>();
+        myContainerScript = myContainer.GetComponent<Container>();
 
         // Create the layermask. Add everything we don't want to hit to the mask, then reverse the mask
         layerMask = LayerMask.GetMask("BallSwinger", "BallContainer");
@@ -79,7 +83,7 @@ public class Grapple : MonoBehaviour {
                 laserEndPosition = raycastHit.point;
 
                 // If the object we're pointing at is swingable...
-                if (raycastHit.collider.gameObject.tag == "Swingable")
+                if (raycastHit.collider.gameObject.tag == "Swingable" || raycastHit.collider.gameObject.tag == "MovingSwingable")
                 {
                     // Change the laser color
                     lineRenderer.material = swingableMaterial;
@@ -93,17 +97,14 @@ public class Grapple : MonoBehaviour {
                             // ...if the other grapple has hook invoked...
                             if (otherGrapple.hookInvoked)
                             {
-                                // ...hook invoke ourselves
-                                hookInvoked = true;
-                                invokedSpotToHook = raycastHit.point;
-                                previousYCoord = playerManager.transform.position.y;
+                                // ...that means we just jumped, so hook invoke ourselves so we don't fire until we're at our peak
+                                InvokeHooking(raycastHit);
                             }
                             // Otherwise, the other grapple isn't invoked, so...
                             else
                             {
                                 // ...shoot the grapple and notify the PlayerManager
-                                ShootGrapple(raycastHit.point);
-
+                                ShootGrapple(raycastHit.point, raycastHit.transform);
                                 playerManager.SwitchToHookedFromMidair();
                             }
                         }
@@ -112,14 +113,12 @@ public class Grapple : MonoBehaviour {
                         {
                             // ...jump, and invoke hooking
                             playerManager.Jump();
-                            hookInvoked = true;
-                            invokedSpotToHook = raycastHit.point;
-                            previousYCoord = playerManager.transform.position.y;
+                            InvokeHooking(raycastHit);
                         }
                     }
                 }
             }
-            // Otherwise, our ray didn't hit anything, so...
+            // Otherwise, our ray didn't hit anything swingable, so...
             else
             {
                 // ...change the line renderer material accordingly
@@ -144,6 +143,7 @@ public class Grapple : MonoBehaviour {
                 // Deactivate our container and flag ourselves as not hooked
                 myContainer.SetActive(false);
                 isHooked = false;
+                myContainer.transform.parent = null;
             }
 
             // ...if hooking is invoked...
@@ -151,7 +151,6 @@ public class Grapple : MonoBehaviour {
             {
                 // ...uninvoke it
                 hookInvoked = false;
-                lineRenderer.material = hookInvokedMaterial;
             }
         }
 
@@ -160,13 +159,16 @@ public class Grapple : MonoBehaviour {
         {
             // Change the laser material
             lineRenderer.material = hookInvokedMaterial;
-            laserEndPosition = invokedSpotToHook;
+            laserEndPosition = initialInvokedSpotToHook;
             
             // ...if we're falling...
             if (playerManager.transform.position.y < previousYCoord)
             {
-                // ...shoot the grapple in the invoked spot and disable hookInvoked
-                ShootGrapple(invokedSpotToHook);
+                // ...take into account if the object we want to shoot moved, and shoot there
+                Vector3 targetObjectsPositionChange = invokedHitObject.transform.position - initialInvokedObjectPosition;
+                ShootGrapple(initialInvokedSpotToHook + targetObjectsPositionChange, invokedHitObject.transform);
+
+                // Mark ourselves unhooked
                 hookInvoked = false;
             }
             // Otherwise, we're not yet falling, so...
@@ -206,7 +208,7 @@ public class Grapple : MonoBehaviour {
     /// Shoots the grapple, with the container centered at the input Vector3
     /// </summary>
     /// <param name="inputHitLocation"></param>
-    private void ShootGrapple(Vector3 inputHitLocation)
+    private void ShootGrapple(Vector3 inputHitLocation, Transform inputHitObjectTransform)
     {
         // Flag ourselves hooked
         isHooked = true;
@@ -216,7 +218,7 @@ public class Grapple : MonoBehaviour {
         ballSwinger.transform.position = cameraEyeTransform.position;
         ballSwingerRigidbody.velocity = followMeRigidbody.velocity;
 
-        // Update the position of Follow Me, Camera Rig
+        // Update the position of Follow Me Camera Rig to the ball
         followMeCameraRigScript.SetPosition();
 
         // If we're the first to get hooked, joint connect Follow Me to the ball
@@ -229,7 +231,15 @@ public class Grapple : MonoBehaviour {
         // Activate our container, and set it to the appropriate place
         myContainer.SetActive(true);
         myContainer.transform.position = inputHitLocation;
-        myContainer.GetComponent<Container>().SetDistanceFromOrigin();
+        myContainerScript.SetDistanceFromOrigin();
+
+        // If we're hooking to a moving object...
+        if (inputHitObjectTransform.tag == "MovingSwingable")
+        {
+            // ...let my container know
+            myContainerScript.latchedObjectTransform = inputHitObjectTransform;
+            myContainerScript.latchedObjPreviousPosition = inputHitObjectTransform.position;
+        }
         
         // If the other grapple is hooked...
         if (otherGrapple.isHooked)
@@ -245,5 +255,18 @@ public class Grapple : MonoBehaviour {
     public void DeactivateBall()
     {
         ballSwinger.SetActive(false);
+    }
+
+    /// <summary>
+    /// Invokes hooking, and assigns all needed variables involved
+    /// </summary>
+    /// <param name="inputRaycastHit"></param>
+    private void InvokeHooking(RaycastHit inputRaycastHit)
+    {
+        hookInvoked = true;
+        initialInvokedSpotToHook = inputRaycastHit.point;
+        invokedHitObject = inputRaycastHit.transform.gameObject;
+        initialInvokedObjectPosition = invokedHitObject.transform.position;
+        previousYCoord = playerManager.transform.position.y;
     }
 }

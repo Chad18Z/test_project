@@ -51,6 +51,8 @@ public class PlayerManager : MonoBehaviour
     /// </summary>
     public void SwitchToLanded()
     {
+        transform.parent = null;
+
         // For either hand that's hooked, deactivate it's container and the ball
         if (rightHandGrapple.isHooked)
         {

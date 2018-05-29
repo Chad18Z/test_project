@@ -4,9 +4,13 @@ using UnityEngine;
 
 public class Container : MonoBehaviour {
 
+    [HideInInspector] public Transform latchedObjectTransform;
+    [HideInInspector] public Vector3 latchedObjPreviousPosition;
+    public Transform targetTransform;   // the Transform of our target, the ball
+
+    
     float cubeHalfWidth;                // half of the cube's width. Duh
     float ballSwingerRadius;            // radius of the ball swinger. Obviously
-    public Transform targetTransform;   // the Transform of our target, the ball
 
     void Start()
     {
@@ -23,8 +27,22 @@ public class Container : MonoBehaviour {
         // Always point to the ball
         Vector3 directionToLook = targetTransform.position - transform.position;
         transform.forward = directionToLook;
+
+        // If we're latched to a moving object...
+        if (latchedObjectTransform != null)
+        {
+            // ...move the container along with the moving object
+            transform.position += latchedObjectTransform.position - latchedObjPreviousPosition;
+
+            // Store that objects current position for next frame
+            latchedObjPreviousPosition = latchedObjectTransform.position;
+        }
 	}
 
+    void OnDisable()
+    {
+        latchedObjectTransform = null;
+    }
 
 
 
