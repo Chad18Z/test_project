@@ -140,10 +140,7 @@ public class Grapple : MonoBehaviour {
                     DeactivateBall();
                 }
 
-                // Deactivate our container and flag ourselves as not hooked
-                myContainer.SetActive(false);
-                isHooked = false;
-                myContainer.transform.parent = null;
+                Unhook();
             }
 
             // ...if hooking is invoked...
@@ -250,14 +247,6 @@ public class Grapple : MonoBehaviour {
     }
     
     /// <summary>
-    /// Just deactivates the ball. Only here so other scripts can do this
-    /// </summary>
-    public void DeactivateBall()
-    {
-        ballSwinger.SetActive(false);
-    }
-
-    /// <summary>
     /// Invokes hooking, and assigns all needed variables involved
     /// </summary>
     /// <param name="inputRaycastHit"></param>
@@ -268,5 +257,21 @@ public class Grapple : MonoBehaviour {
         invokedHitObject = inputRaycastHit.transform.gameObject;
         initialInvokedObjectPosition = invokedHitObject.transform.position;
         previousYCoord = playerManager.transform.position.y;
+    }
+
+
+    /// <summary>
+    /// Just deactivates the ball. Only here so other scripts can do this
+    /// </summary>
+    public void DeactivateBall()
+    {
+        ballSwinger.SetActive(false);
+    }
+
+    public void Unhook()
+    {                
+        // Deactivate our container and flag ourselves as not hooked
+        myContainer.SetActive(false);
+        isHooked = false;
     }
 }

@@ -13,6 +13,8 @@ public class LandingSensor : MonoBehaviour {
 
     void OnTriggerEnter(Collider other)
     {
+        if (other.gameObject.CompareTag("Not Landable")) return;
+
         // Because colliders aren't perfect, we want to make sure we didn't fall slightly through the floor before stopping.
         // This casts a ray straight down from above us and finds the ground, moving the Camera Rig to that exact height
 
