@@ -12,6 +12,7 @@ public class Grapple : MonoBehaviour {
     [SerializeField] Material swingingMaterial;                         // the laser's material when we're swinging
     [SerializeField] Material hookInvokedMaterial;                      // the laser's material when hooking is invoked
     [SerializeField] GameObject followMeCameraRig;                      // the Follow Me Camera Rig object
+    [SerializeField] GameObject grappler;
 
     [HideInInspector] public bool isHooked;                             // is THIS grapple currently hooked?
     [HideInInspector] public bool hookInvoked;                          // while jumping to get ready to grapple, this is true
