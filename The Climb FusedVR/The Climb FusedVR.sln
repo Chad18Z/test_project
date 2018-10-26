@@ -1,9 +1,9 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio 2017
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "The Climb FusedVR", "The Climb FusedVR.csproj", "{0E3BEA9F-9C24-1628-8043-3E8EE1EEBB56}"
+# Visual Studio 15
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Assembly-CSharp", "Assembly-CSharp.csproj", "{1B773207-4247-D340-E789-F7117CFC4A28}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "The Climb FusedVR.Editor", "The Climb FusedVR.Editor.csproj", "{05877669-065C-0A08-8DBC-E95AFF660049}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Assembly-CSharp-Editor", "Assembly-CSharp-Editor.csproj", "{D464850E-DCFE-E484-A9D2-C8F6308C8774}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -11,14 +11,14 @@ Global
 		Release|Any CPU = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
-		{0E3BEA9F-9C24-1628-8043-3E8EE1EEBB56}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{0E3BEA9F-9C24-1628-8043-3E8EE1EEBB56}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{0E3BEA9F-9C24-1628-8043-3E8EE1EEBB56}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{0E3BEA9F-9C24-1628-8043-3E8EE1EEBB56}.Release|Any CPU.Build.0 = Release|Any CPU
-		{05877669-065C-0A08-8DBC-E95AFF660049}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{05877669-065C-0A08-8DBC-E95AFF660049}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{05877669-065C-0A08-8DBC-E95AFF660049}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{05877669-065C-0A08-8DBC-E95AFF660049}.Release|Any CPU.Build.0 = Release|Any CPU
+		{1B773207-4247-D340-E789-F7117CFC4A28}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{1B773207-4247-D340-E789-F7117CFC4A28}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{1B773207-4247-D340-E789-F7117CFC4A28}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{1B773207-4247-D340-E789-F7117CFC4A28}.Release|Any CPU.Build.0 = Release|Any CPU
+		{D464850E-DCFE-E484-A9D2-C8F6308C8774}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{D464850E-DCFE-E484-A9D2-C8F6308C8774}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{D464850E-DCFE-E484-A9D2-C8F6308C8774}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{D464850E-DCFE-E484-A9D2-C8F6308C8774}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
