@@ -8,6 +8,8 @@ TagManager:
   - MovingSwingable
   - FollowMe
   - Not Landable
+  - leftGrappleSpawn
+  - rightGrappleSpawn
   layers:
   - Default
   - TransparentFX

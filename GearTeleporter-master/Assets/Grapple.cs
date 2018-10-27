@@ -68,11 +68,11 @@ public class Grapple : MonoBehaviour {
         laserEndPosition = transform.position + shotReferenceTransform.up * maxLength;
 
         // FOR TESTING PURPOSES: PAUSE GAME
-        if (device.GetPressDown(SteamVR_Controller.ButtonMask.Grip))
-        {
-            print("You clicked the pause button! :O");
-            Time.timeScale = 0f;
-        }
+        //if (device.GetPressDown(SteamVR_Controller.ButtonMask.Grip))
+        //{
+        //    print("You clicked the pause button! :O");
+        //    Time.timeScale = 0f;
+        //}
 
         // If we're allowed to shoot our laser...
         if (laserEnabled)
@@ -208,43 +208,47 @@ public class Grapple : MonoBehaviour {
     /// <param name="inputHitLocation"></param>
     private void ShootGrapple(Vector3 inputHitLocation, Transform inputHitObjectTransform)
     {
-        // Flag ourselves hooked
-        isHooked = true;
-
-        // Activate the ball and put it in position at our head
-        ballSwinger.SetActive(true);
-        ballSwinger.transform.position = cameraEyeTransform.position;
-        ballSwingerRigidbody.velocity = followMeRigidbody.velocity;
-
-        // Update the position of Follow Me Camera Rig to the ball
-        followMeCameraRigScript.SetPosition();
-
-        // If we're the first to get hooked, joint connect Follow Me to the ball
-        if (!otherGrapple.isHooked)
-        {
-            followMeCameraRigScript.ConnectToBall();
-            followMeRigidbody.velocity = ballSwingerRigidbody.velocity;
-        }
-
-        // Activate our container, and set it to the appropriate place
-        myContainer.SetActive(true);
-        myContainer.transform.position = inputHitLocation;
-        myContainerScript.SetDistanceFromOrigin();
-
-        // If we're hooking to a moving object...
-        if (inputHitObjectTransform.tag == "MovingSwingable")
-        {
-            // ...let my container know
-            myContainerScript.latchedObjectTransform = inputHitObjectTransform;
-            myContainerScript.latchedObjPreviousPosition = inputHitObjectTransform.position;
-        }
+        GameObject grappleSphere = Instantiate(grappler);
+        grappleSphere.GetComponent<GrappleSphere>().Target = inputHitLocation;
         
-        // If the other grapple is hooked...
-        if (otherGrapple.isHooked)
-        {
-            // ...reset their container's length, in case the player moved his head
-            otherGrapple.myContainer.GetComponent<Container>().SetDistanceFromOrigin();
-        }
+
+        //// Flag ourselves hooked
+        //isHooked = true;
+
+        //// Activate the ball and put it in position at our head
+        //ballSwinger.SetActive(true);
+        //ballSwinger.transform.position = cameraEyeTransform.position;
+        //ballSwingerRigidbody.velocity = followMeRigidbody.velocity;
+
+        //// Update the position of Follow Me Camera Rig to the ball
+        //followMeCameraRigScript.SetPosition();
+
+        //// If we're the first to get hooked, joint connect Follow Me to the ball
+        //if (!otherGrapple.isHooked)
+        //{
+        //    followMeCameraRigScript.ConnectToBall();
+        //    followMeRigidbody.velocity = ballSwingerRigidbody.velocity;
+        //}
+
+        //// Activate our container, and set it to the appropriate place
+        //myContainer.SetActive(true);
+        //myContainer.transform.position = inputHitLocation;
+        //myContainerScript.SetDistanceFromOrigin();
+
+        //// If we're hooking to a moving object...
+        //if (inputHitObjectTransform.tag == "MovingSwingable")
+        //{
+        //    // ...let my container know
+        //    myContainerScript.latchedObjectTransform = inputHitObjectTransform;
+        //    myContainerScript.latchedObjPreviousPosition = inputHitObjectTransform.position;
+        //}
+        
+        //// If the other grapple is hooked...
+        //if (otherGrapple.isHooked)
+        //{
+        //    // ...reset their container's length, in case the player moved his head
+        //    otherGrapple.myContainer.GetComponent<Container>().SetDistanceFromOrigin();
+        //}
     }
     
     /// <summary>
