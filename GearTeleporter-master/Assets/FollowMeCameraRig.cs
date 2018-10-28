@@ -93,7 +93,7 @@ public class FollowMeCameraRig : MonoBehaviour
     /// </summary>
     public void SetPosition()
     {
-        cameraRigTransform.parent = null;
+        //cameraRigTransform.parent = null;
         //transform.position = ballSwinger.transform.position;
         cameraRigTransform.parent = transform;
     }
