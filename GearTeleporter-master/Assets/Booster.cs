@@ -22,17 +22,17 @@ public class Booster : MonoBehaviour {
 
     private void OnTriggerEnter(Collider other)
     {
-        // If Follow Me Camera Rig hits me...
-        if (other.gameObject.CompareTag("FollowMe"))
-        {
-            // Ungrapple
-            //leftGrapple.Unhook();
-            //rightGrapple.Unhook();
-            //followMeScript.DisconnectFromBall();
-            //leftGrapple.DeactivateBall();
+        //// If Follow Me Camera Rig hits me...
+        //if (other.gameObject.CompareTag("FollowMe"))
+        //{
+        //    // Ungrapple
+        //    //leftGrapple.Unhook();
+        //    //rightGrapple.Unhook();
+        //    //followMeScript.DisconnectFromBall();
+        //    //leftGrapple.DeactivateBall();
 
-            // Send that bitch fuckin' FLYING
-            //*ollowMeRigidbody.velocity = forwardDirection * boostPower;*/
-        }
+        //    // Send that bitch fuckin' FLYING
+        //    //*ollowMeRigidbody.velocity = forwardDirection * boostPower;*/
+        //}
     }
 }

@@ -210,11 +210,15 @@ public class Grapple : MonoBehaviour {
     /// <param name="inputHitLocation"></param>
     private void ShootGrapple(Vector3 inputHitLocation, Transform inputHitObjectTransform)
     {
+        //laserEnabled = false;
         GameObject grappleSphere = Instantiate(grappler);
-        grappleSphere.transform.position = trackedObj.transform.position;
-        grappleSphere.GetComponent<GrappleSphere>().Target = inputHitLocation;
+        grappleSphere.transform.position = trackedObj.transform.position; // grappleSphere's journey begins at the controller
+        GrappleSphere script = grappleSphere.GetComponent<GrappleSphere>(); // reference to the script which controls grappleSphere
+        script.Controller = trackedObj; // let the grappleSphere have a reference to the controller which instatiated it
+        script.Target = inputHitObjectTransform.position; // set grappleSphere's destination to the selected object's position
         
-
+        
+        
         //// Flag ourselves hooked
         //isHooked = true;
 
