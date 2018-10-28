@@ -7,14 +7,14 @@ using UnityEngine;
 /// </summary>
 public class FollowMeCameraRig : MonoBehaviour
 {
-    [SerializeField] GameObject ballSwinger;                            // the ball swinger
-    [SerializeField] MyTeleport leftMyTeleportScript;
-    [SerializeField] MyTeleport rightMyTeleportScript;
+    //[SerializeField] GameObject ballSwinger;                            // the ball swinger
+    //[SerializeField] MyTeleport leftMyTeleportScript;
+    //[SerializeField] MyTeleport rightMyTeleportScript;
 
     Transform cameraRigTransform;                       // the transform of our Camera Rig
     Transform cameraEyeTransform;                       // the transform of our headset
     Rigidbody rigidBody;                                // our rigidbody
-    Rigidbody ballSwingerRigidbody;                     // the ball swinger's rigidbody
+    //Rigidbody ballSwingerRigidbody;                     // the ball swinger's rigidbody
     CapsuleCollider capsuleCollider;                    // our capsule collider component
 
 	// Use this for initialization
@@ -24,7 +24,7 @@ public class FollowMeCameraRig : MonoBehaviour
         cameraRigTransform = GameObject.Find("[CameraRig]").transform;
         cameraEyeTransform = GameObject.Find("Camera (eye)").transform;
         rigidBody = GetComponent<Rigidbody>();
-        ballSwingerRigidbody = ballSwinger.GetComponent<Rigidbody>();
+        //ballSwingerRigidbody = ballSwinger.GetComponent<Rigidbody>();
         capsuleCollider = GetComponent<CapsuleCollider>();
         
         gameObject.SetActive(false);
@@ -47,8 +47,8 @@ public class FollowMeCameraRig : MonoBehaviour
         InvokeRepeating("SetCollider", 0.000001f, 0.5f);
 
         // Whenever this puppy is on, we're not in a position where we should be allowed to teleport
-        leftMyTeleportScript.DisableTeleport();
-        rightMyTeleportScript.DisableTeleport();
+        //leftMyTeleportScript.DisableTeleport();
+        //rightMyTeleportScript.DisableTeleport();
     }
 
     void OnDisable()
@@ -59,8 +59,8 @@ public class FollowMeCameraRig : MonoBehaviour
         CancelInvoke();
         
         // When turned off, we should be allowed to teleport
-        leftMyTeleportScript.EnableTeleport();
-        rightMyTeleportScript.EnableTeleport();
+        //leftMyTeleportScript.EnableTeleport();
+        //rightMyTeleportScript.EnableTeleport();
     }
 
 
@@ -76,8 +76,8 @@ public class FollowMeCameraRig : MonoBehaviour
     /// </summary>
     public void ConnectToBall()
     {
-        FixedJoint fixedJoint = gameObject.AddComponent<FixedJoint>();
-        fixedJoint.connectedBody = ballSwingerRigidbody;
+        //FixedJoint fixedJoint = gameObject.AddComponent<FixedJoint>();
+        //fixedJoint.connectedBody = ballSwingerRigidbody;
     }
 
     /// <summary>
@@ -94,7 +94,7 @@ public class FollowMeCameraRig : MonoBehaviour
     public void SetPosition()
     {
         cameraRigTransform.parent = null;
-        transform.position = ballSwinger.transform.position;
+        //transform.position = ballSwinger.transform.position;
         cameraRigTransform.parent = transform;
     }
 

@@ -209,11 +209,12 @@ public class Grapple : MonoBehaviour {
     private void ShootGrapple(Vector3 inputHitLocation, Transform inputHitObjectTransform)
     {
         GameObject grappleSphere = Instantiate(grappler);
+        grappleSphere.transform.position = transform.position;
         grappleSphere.GetComponent<GrappleSphere>().Target = inputHitLocation;
         
 
         //// Flag ourselves hooked
-        //isHooked = true;
+        isHooked = true;
 
         //// Activate the ball and put it in position at our head
         //ballSwinger.SetActive(true);
