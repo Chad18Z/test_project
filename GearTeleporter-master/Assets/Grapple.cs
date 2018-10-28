@@ -27,10 +27,10 @@ public class Grapple : MonoBehaviour {
     Transform cameraEyeTransform;               // the transform of the headset
     SteamVR_TrackedObject trackedObj;           // this hand
     LineRenderer lineRenderer;                  // this hand's line renderer
-    Rigidbody ballSwingerRigidbody;             // the balls rigidbody
+    //Rigidbody ballSwingerRigidbody;             // the balls rigidbody
     Vector3 laserEndPosition;                   // where our laser stops
-    Vector3 initialInvokedSpotToHook;           // when we first invoked hooking, this is the exact position the ray hit
-    Vector3 initialInvokedObjectPosition;       // when we first invoked hooking, this is the position that the object we hit was
+    //Vector3 initialInvokedSpotToHook;           // when we first invoked hooking, this is the exact position the ray hit
+    //Vector3 initialInvokedObjectPosition;       // when we first invoked hooking, this is the position that the object we hit was
     float maxLength = 100f;                     // the max length our laser can travel
     float previousYCoord;                       // where we were in the Y-axis last frame. This is used to find when we're at the peak of our jump
     int layerMask;                              // the layermask of what our ray can hit
@@ -42,14 +42,14 @@ public class Grapple : MonoBehaviour {
         // Assign declared variables
         trackedObj = GetComponent<SteamVR_TrackedObject>();
         lineRenderer = GetComponent<LineRenderer>();
-        ballSwingerRigidbody = ballSwinger.GetComponent<Rigidbody>();
+        //ballSwingerRigidbody = ballSwinger.GetComponent<Rigidbody>();
         //isHooked = false;
         //hookInvoked = false;
         playerManager = GameObject.Find("[CameraRig]").GetComponent<PlayerManager>();
         cameraEyeTransform = GameObject.Find("Camera (eye)").transform;
         followMeCameraRigScript = followMeCameraRig.GetComponent<FollowMeCameraRig>();
         followMeRigidbody = followMeCameraRig.GetComponent<Rigidbody>();
-        myContainerScript = myContainer.GetComponent<Container>();
+        //myContainerScript = myContainer.GetComponent<Container>();
 
         // Create the layermask. Add everything we don't want to hit to the mask, then reverse the mask
         layerMask = LayerMask.GetMask("BallSwinger", "BallContainer");
@@ -60,7 +60,7 @@ public class Grapple : MonoBehaviour {
     void Update ()
     {
         // Create the device, Ray, and RaycastHit
-         var device = SteamVR_Controller.Input((int)trackedObj.index);
+        var device = SteamVR_Controller.Input((int)trackedObj.index);
         Ray ray = new Ray(transform.position, shotReferenceTransform.up);
         RaycastHit raycastHit;
         
@@ -211,7 +211,7 @@ public class Grapple : MonoBehaviour {
     private void ShootGrapple(Vector3 inputHitLocation, Transform inputHitObjectTransform)
     {
         GameObject grappleSphere = Instantiate(grappler);
-        grappleSphere.transform.position = transform.position;
+        grappleSphere.transform.position = trackedObj.transform.position;
         grappleSphere.GetComponent<GrappleSphere>().Target = inputHitLocation;
         
 
