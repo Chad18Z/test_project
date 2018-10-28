@@ -26,13 +26,13 @@ public class Booster : MonoBehaviour {
         if (other.gameObject.CompareTag("FollowMe"))
         {
             // Ungrapple
-            leftGrapple.Unhook();
-            rightGrapple.Unhook();
-            followMeScript.DisconnectFromBall();
-            leftGrapple.DeactivateBall();
+            //leftGrapple.Unhook();
+            //rightGrapple.Unhook();
+            //followMeScript.DisconnectFromBall();
+            //leftGrapple.DeactivateBall();
 
             // Send that bitch fuckin' FLYING
-            followMeRigidbody.velocity = forwardDirection * boostPower;
+            //*ollowMeRigidbody.velocity = forwardDirection * boostPower;*/
         }
     }
 }

@@ -60,7 +60,7 @@ public class Grapple : MonoBehaviour {
     void Update ()
     {
         // Create the device, Ray, and RaycastHit
-        var device = SteamVR_Controller.Input((int)trackedObj.index);
+         var device = SteamVR_Controller.Input((int)trackedObj.index);
         Ray ray = new Ray(transform.position, shotReferenceTransform.up);
         RaycastHit raycastHit;
         
@@ -256,30 +256,30 @@ public class Grapple : MonoBehaviour {
     
     /// <summary>
     /// Invokes hooking, and assigns all needed variables involved
-    /// </summary>
-    /// <param name="inputRaycastHit"></param>
-    private void InvokeHooking(RaycastHit inputRaycastHit)
-    {
-        hookInvoked = true;
-        initialInvokedSpotToHook = inputRaycastHit.point;
-        invokedHitObject = inputRaycastHit.transform.gameObject;
-        initialInvokedObjectPosition = invokedHitObject.transform.position;
-        previousYCoord = playerManager.transform.position.y;
-    }
+    ///// </summary>
+    ///// <param name="inputRaycastHit"></param>
+    //private void InvokeHooking(RaycastHit inputRaycastHit)
+    //{
+    //    hookInvoked = true;
+    //    initialInvokedSpotToHook = inputRaycastHit.point;
+    //    invokedHitObject = inputRaycastHit.transform.gameObject;
+    //    initialInvokedObjectPosition = invokedHitObject.transform.position;
+    //    previousYCoord = playerManager.transform.position.y;
+    //}
 
 
-    /// <summary>
-    /// Just deactivates the ball. Only here so other scripts can do this
-    /// </summary>
-    public void DeactivateBall()
-    {
-        ballSwinger.SetActive(false);
-    }
+    ///// <summary>
+    ///// Just deactivates the ball. Only here so other scripts can do this
+    ///// </summary>
+    //public void DeactivateBall()
+    //{
+    //    ballSwinger.SetActive(false);
+    //}
 
-    public void Unhook()
-    {                
-        // Deactivate our container and flag ourselves as not hooked
-        myContainer.SetActive(false);
-        isHooked = false;
-    }
+    //public void Unhook()
+    //{                
+    //    // Deactivate our container and flag ourselves as not hooked
+    //    myContainer.SetActive(false);
+    //    isHooked = false;
+    //}
 }

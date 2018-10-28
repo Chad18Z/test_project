@@ -53,17 +53,17 @@ public class PlayerManager : MonoBehaviour
     {
         transform.parent = null;
 
-        // For either hand that's hooked, deactivate it's container and the ball
-        if (rightHandGrapple.isHooked)
-        {
-            rightHandGrapple.DeactivateBall();
-            rightHandGrapple.myContainer.SetActive(false);
-        }
-        if (leftHandGrapple.isHooked)
-        {
-            leftHandGrapple.DeactivateBall();
-            leftHandGrapple.myContainer.SetActive(false);
-        }
+        //// For either hand that's hooked, deactivate it's container and the ball
+        //if (rightHandGrapple.isHooked)
+        //{
+        //    rightHandGrapple.DeactivateBall();
+        //    rightHandGrapple.myContainer.SetActive(false);
+        //}
+        //if (leftHandGrapple.isHooked)
+        //{
+        //    leftHandGrapple.DeactivateBall();
+        //    leftHandGrapple.myContainer.SetActive(false);
+        //}
 
         // Deactivate Follow Me and our landing sensor, and flag ourselves grounded
         followMeCameraRig.SetActive(false);
