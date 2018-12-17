@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 
 /// <summary>
-/// Senses if we landed, and puts us in the right place
+/// The player manager senses if we landed, and puts us in the right place (vertically)
 /// </summary>
 public class LandingSensor : MonoBehaviour {
 

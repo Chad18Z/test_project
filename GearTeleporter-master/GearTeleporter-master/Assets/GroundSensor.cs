@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 
 /// <summary>
-/// Senses when we fall off a cliff
+/// The PlayerManager uses this to sense when we fall off a cliff
 /// </summary>
 public class GroundSensor : MonoBehaviour {
 

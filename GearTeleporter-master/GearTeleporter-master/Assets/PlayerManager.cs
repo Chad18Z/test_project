@@ -85,16 +85,16 @@ public class PlayerManager : MonoBehaviour
     /// <summary>
     /// Goes from being the on the ground to jumping
     /// </summary>
-    public void Jump()
+    public void Jump(Vector3 pointToJumpTowards)
     {
         // Activate Follow Me, and invoke the landing sensor to come on in a sec, so it doesn't IMMEDIATELY say we landed
         followMeCameraRig.SetActive(true);
         Invoke("SetLandingSensorActive", .1f);
         onGround = false;
-        
+
         // Do some vector math stuff to figure out what to set our velocity at to jump
-        Vector2 flattenedTargetVector = (new Vector2(cameraEyeTransform.forward.x, cameraEyeTransform.forward.z)).normalized * lateralJumpForce;
-        Vector3 jumpVector = new Vector3(flattenedTargetVector.x, verticalJumpForce, flattenedTargetVector.y);
+        Vector2 flattenedDirectionToJump = (new Vector2(pointToJumpTowards.x - transform.position.x, pointToJumpTowards.z - transform.position.z)).normalized * lateralJumpForce;
+        Vector3 jumpVector = new Vector3(flattenedDirectionToJump.x, verticalJumpForce, flattenedDirectionToJump.y);
         followMeCameraRig.GetComponent<Rigidbody>().velocity = jumpVector;
     }
     

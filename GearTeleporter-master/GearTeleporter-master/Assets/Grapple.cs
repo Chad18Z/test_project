@@ -67,7 +67,7 @@ public class Grapple : MonoBehaviour {
         laserEndPosition = transform.position + shotReferenceTransform.up * maxLength;
 
         // FOR TESTING PURPOSES: PAUSE GAME
-        if (device.GetPressDown(SteamVR_Controller.ButtonMask.Grip))
+        if (device.GetPressDown(SteamVR_Controller.ButtonMask.ApplicationMenu))
         {
             print("You clicked the pause button! :O");
             Time.timeScale = 0f;
@@ -112,7 +112,7 @@ public class Grapple : MonoBehaviour {
                         else
                         {
                             // ...jump, and invoke hooking
-                            playerManager.Jump();
+                            playerManager.Jump(laserEndPosition);
                             InvokeHooking(raycastHit);
                         }
                     }
@@ -261,16 +261,18 @@ public class Grapple : MonoBehaviour {
 
 
     /// <summary>
-    /// Just deactivates the ball. Only here so other scripts can do this
+    /// Just deactivates the ball. Only here so other scripts can access this
     /// </summary>
     public void DeactivateBall()
     {
         ballSwinger.SetActive(false);
     }
 
+    /// <summary>
+    /// Deactivates our container and flag ourselves as not hooked
+    /// </summary>
     public void Unhook()
-    {                
-        // Deactivate our container and flag ourselves as not hooked
+    {
         myContainer.SetActive(false);
         isHooked = false;
     }
