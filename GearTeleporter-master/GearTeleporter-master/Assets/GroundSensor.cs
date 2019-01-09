@@ -20,6 +20,6 @@ public class GroundSensor : MonoBehaviour {
 
     void OnTriggerExit(Collider other)
     {
-        playerManager.SwitchToFellOffCliff();
+        playerManager.SwitchToStatus(PlayerStatus.Midair);
     }
 }

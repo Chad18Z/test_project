@@ -9,6 +9,7 @@ public class Booster : MonoBehaviour {
     [SerializeField] Grapple rightGrapple;
     [SerializeField] float boostPower = 30f;
 
+    PlayerManager playerManager;
     FollowMeCameraRig followMeScript;
     Vector3 forwardDirection;
 
@@ -18,6 +19,7 @@ public class Booster : MonoBehaviour {
         // Assign the declared variables
         followMeScript = followMeRigidbody.gameObject.GetComponent<FollowMeCameraRig>();
         forwardDirection = transform.forward.normalized;
+        playerManager = GameObject.Find("[CameraRig]").GetComponent<PlayerManager>();
 	}
 
     private void OnTriggerEnter(Collider other)
@@ -29,7 +31,7 @@ public class Booster : MonoBehaviour {
             leftGrapple.Unhook();
             rightGrapple.Unhook();
             followMeScript.DisconnectFromBall();
-            leftGrapple.DeactivateBall();
+            playerManager.SwitchToStatus(PlayerStatus.Midair);
 
             // Send that bitch fuckin' FLYING
             followMeRigidbody.velocity = forwardDirection * boostPower;

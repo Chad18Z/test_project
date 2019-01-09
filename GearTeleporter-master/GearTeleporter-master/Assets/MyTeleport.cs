@@ -4,7 +4,7 @@ using System.Collections.Generic;
 using UnityEngine;
 
 /// <summary>
-/// Teleports
+/// Teleports and jumps
 /// </summary>
 public class MyTeleport : MonoBehaviour {
 
@@ -12,10 +12,18 @@ public class MyTeleport : MonoBehaviour {
     public GameObject teleportEndSprite;                // the object to put where the teleport hits
     [SerializeField] Transform cameraRigTransform;      // the Camera Rig object's transform
     [SerializeField] Transform playerEyeTransform;      // the head's transform
-    
+
+    PlayerManager playerManager;
     SteamVR_TrackedObject trackedObj;                   // steam's special little tracked object script
     int framesToTeleport = 5;
     bool teleportAllowed;
+    // Jump variables
+    Vector2 initialTouchDownLocation;
+    Vector2 finalTouchLocation;
+    float startTouchTime;
+    float maxSwipeTime = .33f;
+    float swipeDistance = 0.6f;
+    bool swipeTentative = false;
 
     // Use this for initialization
     void Start ()
@@ -23,6 +31,7 @@ public class MyTeleport : MonoBehaviour {
         // Assign declared variables
         trackedObj = GetComponent<SteamVR_TrackedObject>();
         teleportAllowed = true;
+        playerManager = GameObject.Find("[CameraRig]").GetComponent<PlayerManager>();
 
         // Set our travel distance shorter and turn off the teleporter sprite
         bezier.ExtensionFactor = -.5f;
@@ -35,8 +44,46 @@ public class MyTeleport : MonoBehaviour {
         // Get this device
         var device = SteamVR_Controller.Input((int)trackedObj.index);
 
+        // If we're allowed to teleport (which means we should be allowed to jump too)...
         if (teleportAllowed)
         {
+            // JUMP CHECK
+            // Check if the player touched the pad
+            if (device.GetTouchDown(SteamVR_Controller.ButtonMask.Touchpad))
+            {
+                // Record the starting data and flag as swipe tentative
+                initialTouchDownLocation = device.GetAxis();
+                startTouchTime = Time.time;
+                swipeTentative = true;
+            }
+
+            // If we COULD be releasing touching the touchpad for a jump
+            if (swipeTentative)
+            {
+                // If the player releases touching the touchpad...
+                if (device.GetTouchUp(SteamVR_Controller.ButtonMask.Touchpad))
+                {
+                    swipeTentative = false;
+                    Vector2 swipeDifference = finalTouchLocation - initialTouchDownLocation;
+
+                    // If we swiped at least a certain distance and swiped upwards and we swiped up more than to the side...
+                    if (swipeDifference.magnitude >= swipeDistance && swipeDifference.y > 0f && swipeDifference.y > Mathf.Abs(swipeDifference.x))
+                    {
+                        // Successful jump! :D
+                        playerManager.Jump();
+                    }
+                }
+                // Otherwise...
+                else
+                {
+                    // Update the last place their finger touched, and see if they've missed their time period to swipe
+                    finalTouchLocation = device.GetAxis();
+                    if (Time.time - startTouchTime > maxSwipeTime) swipeTentative = false;
+                }
+            }
+
+
+            // HANDLE TELEPORT
             // If we press down on the touchpad, turn the bezier curve on
             if (device.GetPressDown(SteamVR_Controller.ButtonMask.Touchpad))
             {

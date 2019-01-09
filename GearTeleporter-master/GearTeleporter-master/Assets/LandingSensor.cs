@@ -36,6 +36,6 @@ public class LandingSensor : MonoBehaviour {
         }
 
         // Switch us to landed in the player manager
-        playerManager.SwitchToLanded();
+        playerManager.SwitchToStatus(PlayerStatus.Grounded);
     }
 }

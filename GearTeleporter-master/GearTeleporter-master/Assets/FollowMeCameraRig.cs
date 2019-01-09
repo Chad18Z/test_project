@@ -3,7 +3,8 @@ using System.Collections.Generic;
 using UnityEngine;
 
 /// <summary>
-/// Activated when the player is in freefall or hooked. Makes Camera Rig follow it, and is attached to the ball swinger (if it exists)
+/// I'm a physical capsule that's activated when the player is in freefall or hooked. When activated, I make Camera Rig my child, forcing it to follow me everywhere. 
+/// I'm also joint-attached to the ball swinger, if it exists at the given moment. Basically, I give the camera rig physics.
 /// </summary>
 public class FollowMeCameraRig : MonoBehaviour
 {
@@ -30,16 +31,9 @@ public class FollowMeCameraRig : MonoBehaviour
         gameObject.SetActive(false);
     }
 
-    //// Update is called once per frame
-    //void Update()
-    //{
-    //    // Make the camera rig be where we are, PLUS the offset of where the headset is vs the origin of Camera Rig
-    //    cameraRigTransform.position = transform.position + (cameraRigTransform.position - cameraEyeTransform.position);
-    //}
-
     void OnEnable()
     {
-        // Teleport to the headset position, then offset the camera rig like in update
+        // Teleport to the headset position, then become it's parent
         transform.position = cameraEyeTransform.position;
         cameraRigTransform.parent = transform;
 
@@ -54,6 +48,12 @@ public class FollowMeCameraRig : MonoBehaviour
     void OnDisable()
     {
         rigidBody.velocity = Vector3.zero;
+
+        // If we're connected to the ball, disconnect
+        if (GetComponent<FixedJoint>())
+        {
+            Destroy(GetComponent<FixedJoint>());
+        }
 
         // Stop repeating setting the collider for next time it's activated
         CancelInvoke();

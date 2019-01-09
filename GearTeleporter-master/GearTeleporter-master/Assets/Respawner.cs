@@ -17,6 +17,6 @@ public class Respawner : MonoBehaviour {
     private void OnTriggerEnter(Collider other)
     {
         cameraRig.transform.position = startLocation;
-        cameraRig.GetComponent<PlayerManager>().SwitchToLanded();
+        cameraRig.GetComponent<PlayerManager>().SwitchToStatus(PlayerStatus.Grounded);
     }
 }
