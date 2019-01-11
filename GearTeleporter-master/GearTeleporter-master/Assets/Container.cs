@@ -2,18 +2,18 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-public class Container : MonoBehaviour {
-
-    [HideInInspector] public Transform latchedObjectTransform;
-    [HideInInspector] public Vector3 latchedObjPreviousPosition;
+public class Container : MonoBehaviour
+{
     public Transform targetTransform;   // the Transform of our target, the ball
 
-    
+    GameObject myAnchor;
     float cubeHalfWidth;                // half of the cube's width. Duh
     float ballSwingerRadius;            // radius of the ball swinger. Obviously
 
     void Start()
     {
+        myAnchor = transform.parent.gameObject;
+
         // Assign the correct values, then deactivate ourselves
         cubeHalfWidth = transform.GetChild(0).transform.localScale.x / 2f;
         ballSwingerRadius = targetTransform.GetComponent<SphereCollider>().radius * targetTransform.localScale.x;
@@ -27,21 +27,11 @@ public class Container : MonoBehaviour {
         // Always point to the ball
         Vector3 directionToLook = targetTransform.position - transform.position;
         transform.forward = directionToLook;
-
-        // If we're latched to a moving object...
-        if (latchedObjectTransform != null)
-        {
-            // ...move the container along with the moving object
-            transform.position += latchedObjectTransform.position - latchedObjPreviousPosition;
-
-            // Store that objects current position for next frame
-            latchedObjPreviousPosition = latchedObjectTransform.position;
-        }
 	}
 
     void OnDisable()
     {
-        latchedObjectTransform = null;
+        if (myAnchor.GetComponent<FixedJoint>()) Destroy(GetComponent<FixedJoint>());
     }
 
 
@@ -62,5 +52,15 @@ public class Container : MonoBehaviour {
         // Get the distance we should be, and set that as our distance in the Z-axis
         float distFromTarget = (transform.position - targetTransform.position).magnitude;
         transform.GetChild(0).transform.localPosition = new Vector3(0f, 0f, distFromTarget + ballSwingerRadius + cubeHalfWidth + 0.02f);
+    }
+
+    /// <summary>
+    /// Joint attaches the container to the object, ensuring we'll follow it if it moves
+    /// </summary>
+    /// <param name="inputObjectTransform"></param>
+    public void LatchToObject(Transform inputObjectTransform)
+    {
+        FixedJoint fixedJoint = myAnchor.AddComponent<FixedJoint>();
+        fixedJoint.connectedBody = inputObjectTransform.GetComponent<Rigidbody>();
     }
 }

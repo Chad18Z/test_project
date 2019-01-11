@@ -11,8 +11,10 @@ public class LandingSensor : MonoBehaviour {
     [SerializeField] Transform cameraRigTransform;              // the Transform of the Camera Rig object
     [SerializeField] PlayerManager playerManager;               // the PlayerManager script that's attached to the Camera Rig
 
-    void OnTriggerEnter(Collider other)
+    void OnTriggerStay(Collider other)
     {
+        print("literally triggered");
+
         if (other.gameObject.CompareTag("Not Landable")) return;
 
         // Because colliders aren't perfect, we want to make sure we didn't fall slightly through the floor before stopping.

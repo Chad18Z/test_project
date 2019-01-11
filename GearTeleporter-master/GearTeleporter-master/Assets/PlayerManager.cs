@@ -41,34 +41,6 @@ public class PlayerManager : MonoBehaviour
     //////////////////////////////////////////////////////
     /////////////////// CUSTOM METHODS ///////////////////
     //////////////////////////////////////////////////////
-    
-    /// <summary>
-    /// Switches to landed
-    /// </summary>
-    private void SwitchToLanded()
-    {
-        transform.parent = null;
-        ballSwinger.SetActive(false);
-
-        // For either hand that's hooked, deactivate it's container and the ball
-        if (rightHandGrapple.isHooked)
-        {
-            rightHandGrapple.myContainer.SetActive(false);
-        }
-        if (leftHandGrapple.isHooked)
-        {
-            leftHandGrapple.myContainer.SetActive(false);
-        }
-
-        // Make sure both laser pointers are active on each grapple
-        leftHandGrapple.ToggleLaser(true);
-        rightHandGrapple.ToggleLaser(true);
-
-        // Deactivate Follow Me and our landing sensor, and flag ourselves grounded
-        followMeCameraRig.SetActive(false);
-        landingSensor.SetActive(false);
-    }
-
 
     public void Jump()
     {
@@ -99,7 +71,27 @@ public class PlayerManager : MonoBehaviour
     {
         if (inputStatus == PlayerStatus.Grounded)
         {
-            SwitchToLanded();
+            transform.parent = null;
+            ballSwinger.SetActive(false);
+
+            // For either hand that's hooked, deactivate it's container and the ball
+            if (rightHandGrapple.isHooked)
+            {
+                rightHandGrapple.myContainer.SetActive(false);
+            }
+            if (leftHandGrapple.isHooked)
+            {
+                leftHandGrapple.myContainer.SetActive(false);
+            }
+
+            // Make sure both laser pointers are active on each grapple
+            leftHandGrapple.ToggleLaser(true);
+            rightHandGrapple.ToggleLaser(true);
+
+            // Deactivate Follow Me and our landing sensor, and flag ourselves grounded
+            followMeCameraRig.SetActive(false);
+            landingSensor.SetActive(false);
+
             currentStatus = PlayerStatus.Grounded;
         }
 
@@ -128,17 +120,18 @@ public class PlayerManager : MonoBehaviour
             }
             else
             {
-                // Activate the ball and put it in position at our head
-                ballSwinger.SetActive(true);
-                ballSwinger.transform.position = cameraEyeTransform.position;
-                ballSwingerRigidbody.velocity = followMeRigidbody.velocity;
-
-                // Update the position of Follow Me Camera Rig to the ball
-                followMeCameraRigScript.SetPosition();
-
                 // If we weren't already hooked (with the other grapple), joint connect the Follow Me capsule to the ball
                 if (currentStatus == PlayerStatus.Midair)
                 {
+                    // Activate the ball and put it in position at our head
+                    ballSwinger.SetActive(true);
+                    ballSwinger.transform.position = cameraEyeTransform.position;
+                    ballSwingerRigidbody.velocity = followMeRigidbody.velocity;
+
+                    // Update the position of Follow Me Camera Rig to the ball
+                    followMeCameraRigScript.SetPosition();
+
+                    // Make the Follow Me capsule joint connect to the ball
                     followMeCameraRigScript.ConnectToBall();
                     followMeRigidbody.velocity = ballSwingerRigidbody.velocity;
                 }

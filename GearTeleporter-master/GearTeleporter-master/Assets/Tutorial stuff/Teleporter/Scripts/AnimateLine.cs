@@ -4,7 +4,7 @@ using UnityEngine;
 
 // Hack to animate the line renderer.
 public class AnimateLine : MonoBehaviour {
-    public Material m;
+    public Material currentMaterial;
 
     private Vector2 uvAnimationRate = new Vector2(-2.0f, 0.0f);
     private string textureName = "_MainTex";
@@ -12,6 +12,6 @@ public class AnimateLine : MonoBehaviour {
 
     void LateUpdate() {
         uvOffset += (Time.deltaTime * uvAnimationRate);
-        m.SetTextureOffset(textureName, uvOffset);
+        currentMaterial.SetTextureOffset(textureName, uvOffset);
     }
 }

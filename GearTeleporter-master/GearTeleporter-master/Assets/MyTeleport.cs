@@ -12,9 +12,11 @@ public class MyTeleport : MonoBehaviour {
     public GameObject teleportEndSprite;                // the object to put where the teleport hits
     [SerializeField] Transform cameraRigTransform;      // the Camera Rig object's transform
     [SerializeField] Transform playerEyeTransform;      // the head's transform
+    [SerializeField] MyTeleport otherTeleport;
+    [HideInInspector] public bool teleportActivated;
 
     PlayerManager playerManager;
-    SteamVR_TrackedObject trackedObj;                   // steam's special little tracked object script
+    SteamVR_TrackedObject trackedObj;                   // steam's special little tracked object script for controller inputs
     int framesToTeleport = 5;
     bool teleportAllowed;
     // Jump variables
@@ -84,23 +86,29 @@ public class MyTeleport : MonoBehaviour {
 
 
             // HANDLE TELEPORT
-            // If we press down on the touchpad, turn the bezier curve on
-            if (device.GetPressDown(SteamVR_Controller.ButtonMask.Touchpad))
+            // If we press down on the touchpad and the other controller isn't activating their teleport, turn the bezier curve on
+            if (device.GetPressDown(SteamVR_Controller.ButtonMask.Touchpad) && !otherTeleport.teleportActivated)
             {
+                teleportActivated = true;
                 bezier.ToggleDraw(true);
             }
             // If we're mid-holding down the touchpad, keep it on
-            else if (device.GetPress(SteamVR_Controller.ButtonMask.Touchpad))
+            else if (device.GetPress(SteamVR_Controller.ButtonMask.Touchpad) && teleportActivated)
             {
                 HandleEndPoint();
             }
             // If we let go of the touchpad button...
-            else if (device.GetPressUp(SteamVR_Controller.ButtonMask.Touchpad))
+            else if (device.GetPressUp(SteamVR_Controller.ButtonMask.Touchpad) && teleportActivated)
             {
                 // If it actually hit an endpoint, teleport there and turn off the bezier
-                if (bezier.endPointDetected) StartCoroutine(TeleportCameraRigToPosition(bezier.EndPoint + TeleportOffset()));
+                if (bezier.endPointDetected && bezier.endPointSurfaceValid)
+                {
+                    StartCoroutine(TeleportCameraRigToPosition(bezier.EndPoint + TeleportOffset()));
+                }
+
                 teleportEndSprite.SetActive(false);
                 bezier.ToggleDraw(false);
+                teleportActivated = false;
             }
         }
     }

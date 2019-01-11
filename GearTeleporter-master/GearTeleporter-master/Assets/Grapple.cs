@@ -150,25 +150,9 @@ public class Grapple : MonoBehaviour {
         myContainer.SetActive(true);
         myContainer.transform.position = inputHitLocation;
         myContainerScript.SetDistanceFromOrigin();
+        myContainerScript.LatchToObject(inputHitObjectTransform);
 
-        // If we're hooking to a moving object...
-        if (inputHitObjectTransform.tag == "MovingSwingable")
-        {
-            // ...let my container know
-            myContainerScript.latchedObjectTransform = inputHitObjectTransform;
-            myContainerScript.latchedObjPreviousPosition = inputHitObjectTransform.position;
-        }
-        else
-        {
-            myRopeScript.AttachToTarget(inputHitLocation);
-        }
-        
-        // If the other grapple is hooked...
-        if (otherGrapple.isHooked)
-        {
-            // ...reset their container's length, in case the player moved his head
-            otherGrapple.myContainer.GetComponent<Container>().SetDistanceFromOrigin();
-        }
+        myRopeScript.AttachToTarget(inputHitLocation);
     }
 
     /// <summary>
